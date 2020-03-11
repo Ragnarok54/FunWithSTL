@@ -66,7 +66,7 @@ public:
 
   void Add(Shape aShape)
   {
-    // #STL homework rand() is a bad way to randomize, find a better one
+    // #STL homework rand() is a bad way to randomize, find a better modern C++ one
     auto [r, g, b] = make_tuple(rand() % 100 / 100.0f,
       rand() % 100 / 100.0f,
       rand() % 100 / 100.0f);
@@ -79,38 +79,37 @@ public:
     {
     case Shape::Line:
     {
-      mMovingBlocks.push_back(Block(startX - 2 * Block::GetSize(), 0, r, g, b));
-      mMovingBlocks.push_back(Block(startX - 1 * Block::GetSize(), 0, r, g, b));
-      mMovingBlocks.push_back(Block(startX, 0, r, g, b));
-      mMovingBlocks.push_back(Block(startX + 1 * Block::GetSize(), 0, r, g, b));
+      for (int i : range::numeric(-2, 1))
+        mMovingBlocks.emplace_back(startX + i * Block::GetSize(), 0, r, g, b);
       break;
     }
     case Shape::Square:
     {
-      mMovingBlocks.push_back(Block(startX - 1 * Block::GetSize(), 0, r, g, b));
-      mMovingBlocks.push_back(Block(startX - 1 * Block::GetSize(), 1 * Block::GetSize(), r, g, b));
-      mMovingBlocks.push_back(Block(startX, 0, r, g, b));
-      mMovingBlocks.push_back(Block(startX, 1 * Block::GetSize(), r, g, b));
+      mMovingBlocks.emplace_back(startX - 1 * Block::GetSize(), 0, r, g, b);
+      mMovingBlocks.emplace_back(startX - 1 * Block::GetSize(), 1 * Block::GetSize(), r, g, b);
+      mMovingBlocks.emplace_back(startX, 0, r, g, b);
+      mMovingBlocks.emplace_back(startX, 1 * Block::GetSize(), r, g, b);
       break;
     }
     case Shape::L:
     {
-      mMovingBlocks.push_back(Block(startX, 0, r, g, b));
-      mMovingBlocks.push_back(Block(startX, 1 * Block::GetSize(), r, g, b));
-      mMovingBlocks.push_back(Block(startX + Block::GetSize(), 1 * Block::GetSize(), r, g, b));
-      mMovingBlocks.push_back(Block(startX, -Block::GetSize(), r, g, b));
+      mMovingBlocks.emplace_back(startX, 0, r, g, b);
+      mMovingBlocks.emplace_back(startX, 1 * Block::GetSize(), r, g, b);
+      mMovingBlocks.emplace_back(startX + Block::GetSize(), 1 * Block::GetSize(), r, g, b);
+      mMovingBlocks.emplace_back(startX, -Block::GetSize(), r, g, b);
       break;
     }
     case Shape::J:
     {
-      mMovingBlocks.push_back(Block(startX, 0, r, g, b));
-      mMovingBlocks.push_back(Block(startX, 1 * Block::GetSize(), r, g, b));
-      mMovingBlocks.push_back(Block(startX + Block::GetSize(), -1 * Block::GetSize(), r, g, b));
-      mMovingBlocks.push_back(Block(startX, -Block::GetSize(), r, g, b));
+      mMovingBlocks.emplace_back(startX, 0, r, g, b);
+      mMovingBlocks.emplace_back(startX, 1 * Block::GetSize(), r, g, b);
+      mMovingBlocks.emplace_back(startX + Block::GetSize(), -1 * Block::GetSize(), r, g, b);
+      mMovingBlocks.emplace_back(startX, -Block::GetSize(), r, g, b);
       break;
     }
     case Shape::Z:
     {
+      // #STL homework replace with emplace_back
       mMovingBlocks.push_back(Block(startX, 0, r, g, b));
       mMovingBlocks.push_back(Block(startX, -Block::GetSize(), r, g, b));
       mMovingBlocks.push_back(Block(startX + Block::GetSize(), 0, r, g, b));
@@ -123,12 +122,17 @@ public:
 
   bool HasObstacleAt(int x, int y)
   {
-    // #STL
-    for (auto& block : mWallBlocks)
-    {
-      if (block.GetX() == x && block.GetY() == y)
-        return true;
-    }
+    // #STL we could use unordered_set
+    // homework research & try how to write hash function for an unordered_set
+
+    auto foundInWall = find_if(begin(mWallBlocks), end(mWallBlocks), [x, y](Block & block)
+      {
+        return block.GetX() == x && block.GetY() == y;
+      });
+    if (foundInWall != end(mWallBlocks))
+      return true;
+
+
     for (auto& block : mFrozenBlocks)
     {
       if (block.GetX() == x && block.GetY() == y)
@@ -158,7 +162,7 @@ public:
 
     if (aKey == Key::Space)
     {
-      // #STL homework rotate shape
+      // #STL homework rotate shape clockwise
     }
     else if (aKey == Key::Left)
     {
@@ -181,19 +185,19 @@ public:
     // #STL 
     
     // min value on Y to see if game has ended
-    int minY = 999;
+    //int minY = 999;
 
     // proceed to freeze the moving blocks
-    // moving => static
-    for (auto& block : mMovingBlocks)
-    {
-      mFrozenBlocks.push_back(block);
-      if (block.GetY() < minY)
-        minY = block.GetY();
-    }
+    // moving => frozen
+
+    auto minBlock = *min_element(begin(mMovingBlocks), end(mMovingBlocks),
+      [](Block& lhs, Block& rhs) { return lhs.GetY() < rhs.GetY(); });
+
+    mFrozenBlocks.insert(end(mFrozenBlocks), begin(mMovingBlocks), end(mMovingBlocks));
+
     mMovingBlocks.clear();
 
-    if (minY <= 2)
+    if (minBlock.GetY() <= 2)
       mAlive = false;
   }
 
@@ -202,13 +206,13 @@ public:
     if (!IsAlive())
       return;
 
-    // #STL we need to destroy blocks that line up on a X coordinate
+    // #STL homework we need to destroy blocks that line up on a X coordinate
 
     if (!TryMove(0, 1))
       FreezeMovingBlocks();
 
     if (mMovingBlocks.empty())
-      Add((Shape)(rand() % 4 + 1));
+      Add((Shape)(rand() % 5 + 1));
   }
 
   void PrintGameOver()
