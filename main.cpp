@@ -30,23 +30,24 @@ class Block
 private:
   S2D_Image * mImg;
   int mX = 0, mY = 0;
-  bool mIsStatic = false;
 
 public:
-
-  Block(int aX, int aY, bool aIsStatic = true)
-    : mIsStatic(aIsStatic), mX(aX), mY(aY)
-  {
-    string imagePath = string("img\\square0.bmp");
-    mImg = S2D_CreateImage(imagePath.c_str());
-  }
-
-  void SetColor(int r, int g, int b)
+  
+  void SetColor(float r, float g, float b)
   {
     mImg->color.r = r;
     mImg->color.g = g;
     mImg->color.b = b;
     mImg->color.a = 1.0;
+  }
+
+  Block(int aX, int aY, float aR = 0, float aG = 0, float aB = 0)
+    : mX(aX), mY(aY)
+  {
+    string imagePath = string("img\\square0.bmp");
+    mImg = S2D_CreateImage(imagePath.c_str());
+
+    SetColor(aR, aG, aB);
   }
 
   static int GetSize() { return 51; }
@@ -58,20 +59,10 @@ public:
     S2D_DrawImage(mImg);
   }
 
-  bool IsStatic() const
-  {
-    return mIsStatic;
-  }
-
-  void MakeStatic()
-  {
-    mIsStatic = true;
-  }
-
   void UpdatePos(float aDXunits, float aDYunits)
   {
-    mX += GetSize() * aDXunits;
-    mY += GetSize() * aDYunits;
+    mX += (int)(GetSize() * aDXunits);
+    mY += (int)(GetSize() * aDYunits);
   }
 };
 
@@ -82,12 +73,14 @@ private:
 
   void Init()
   {
+    auto [r, g, b] = make_tuple(0.5f, 0.5f, 0.5f);
+
     for (int i : rangeint(0, mBlocksHeight - 1))
-      mBlocks.emplace_back(0, i * Block::GetSize());
+      mBlocks.emplace_back(0, i * Block::GetSize(), r, g, b);
     for (int i : rangeint(0, mBlocksWidth))
-      mBlocks.emplace_back(i * Block::GetSize(), mBlocksHeight * Block::GetSize());
+      mBlocks.emplace_back(i * Block::GetSize(), mBlocksHeight * Block::GetSize(), r, g, b);
     for (int i : rangeint(0, mBlocksHeight - 1))
-      mBlocks.emplace_back(mBlocksWidth * Block::GetSize(), i * Block::GetSize());
+      mBlocks.emplace_back(mBlocksWidth * Block::GetSize(), i * Block::GetSize(), r, g, b);
   }
 
   int GetLimitY() const 
@@ -95,27 +88,32 @@ private:
     return Block::GetSize() * mBlocksHeight;
   }
 
-public :
-  vector<Block> mBlocks;
+public:
 
   enum class Key
   {
-    Up = 0,
+    None = 0,
+    Up,
     Right,
     Down,
     Left,
     Space,
-    Esc,
-    None
+    Esc
   };
 
   enum class Shape
   {
-    Line = 0,
+    None = 0,
     Square,
+    Line,
+    L,
+    J,
     Z,
-    L
   };
+
+  vector<Block> mBlocks;
+  vector<Block> mMovingShape;
+  Shape         mMovingShapeType{ Shape::None };
 
   Game(int aBlocksHeight, int aBlocksWidth)
     : mBlocksHeight(aBlocksHeight), mBlocksWidth(aBlocksWidth)
@@ -125,11 +123,58 @@ public :
 
   void Add(Shape aShape)
   {
-    auto [r, g, b] = make_tuple(rand() % 100 / 100, 
-                                rand() % 100 / 100, 
-                                rand() % 100 / 100);
+    auto [r, g, b] = make_tuple(rand() % 100 / 100.0f, 
+                                rand() % 100 / 100.0f, 
+                                rand() % 100 / 100.0f);
 
+    const int startX = (int)(mBlocksWidth / 2) * Block::GetSize();
 
+    mMovingShape.clear();
+
+    switch (aShape)
+    {
+    case Shape::Line:
+      {
+        mMovingShape.emplace_back(startX - 2 * Block::GetSize(), 0, r, g, b);
+        mMovingShape.emplace_back(startX - 1 * Block::GetSize(), 0, r, g, b);
+        mMovingShape.emplace_back(startX, 0, r, g, b);
+        mMovingShape.emplace_back(startX + 1 * Block::GetSize(), 0, r, g, b);
+        break;
+      }
+      case Shape::Square:
+      {
+        mMovingShape.emplace_back(startX - 1 * Block::GetSize(), 0, r, g, b);
+        mMovingShape.emplace_back(startX - 1 * Block::GetSize(), 1 * Block::GetSize(), r, g, b);
+        mMovingShape.emplace_back(startX, 0, r, g, b);
+        mMovingShape.emplace_back(startX, 1 * Block::GetSize(), r, g, b);
+        break;
+      }
+      case Shape::L:
+      {
+        mMovingShape.emplace_back(startX, 0, r, g, b);
+        mMovingShape.emplace_back(startX, 1 * Block::GetSize(), r, g, b);
+        mMovingShape.emplace_back(startX + Block::GetSize(), 1 * Block::GetSize(), r, g, b);
+        mMovingShape.emplace_back(startX, -Block::GetSize(), r, g, b);
+        break;
+      }
+      case Shape::J:
+      {
+        mMovingShape.emplace_back(startX, 0, r, g, b);
+        mMovingShape.emplace_back(startX, 1 * Block::GetSize(), r, g, b);
+        mMovingShape.emplace_back(startX + Block::GetSize(), -1 * Block::GetSize(),  r, g, b);
+        mMovingShape.emplace_back(startX, -Block::GetSize(), r, g, b);
+        break;
+      }
+      case Shape::Z:
+      {
+        mMovingShape.emplace_back(startX, 0, r, g, b);
+        mMovingShape.emplace_back(startX, -Block::GetSize(), r, g, b);
+        mMovingShape.emplace_back(startX + Block::GetSize(), 0, r, g, b);
+        mMovingShape.emplace_back(startX + Block::GetSize(), Block::GetSize(), r, g, b);
+        
+        break;
+      }
+    }
   }
 
   void DoKeyPressed(Key aKey)
@@ -138,7 +183,8 @@ public :
 
     if (aKey == Key::Space)
     {
-      mBlocks.emplace_back(mBlocksWidth / 2 * Block::GetSize(), 0, false);
+      //mBlocks.emplace_back(mBlocksWidth / 2 * Block::GetSize(), 0, false);
+      Add((Shape)(rand() % 4 + 1));
     }
     else if (aKey == Key::Left)
     {
@@ -146,27 +192,29 @@ public :
     }
     else if (aKey == Key::Right)
     {
-      dx = 0.5;
+      dx = 1;
     }
 
-    for (auto & block : mBlocks)
+    for (auto & block : mMovingShape)
     {
-      if (block.IsStatic())
-        continue;
-
       block.UpdatePos(dx, dy);
     }
   }
 
   void Update()
   {
-    for (auto& block : mBlocks)
+    for (auto& block : mMovingShape)
     {
-      if (block.IsStatic())
-        continue;
-
       block.UpdatePos(0, 0.1);
     }
+  }
+
+  void Render()
+  {
+    for (auto& block : mBlocks)
+      block.Render();
+    for (auto& block : mMovingShape)
+      block.Render();
   }
 };
 
@@ -226,8 +274,7 @@ void on_key(S2D_Event e)
 
 void render() 
 {
-  for (auto& block : world.mBlocks)
-    block.Render();
+  world.Render();
 }
 
 int main(int argc, char* args[]) 
