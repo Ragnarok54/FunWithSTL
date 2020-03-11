@@ -20,6 +20,7 @@ using namespace std;
 template<typename T>
 vector<T> rangeint(T from, T to)
 {
+  // #STL homework implement in a more efficient way
   vector<T> ret(to - from + 1);
   iota(begin(ret), end(ret), from);
   return ret;

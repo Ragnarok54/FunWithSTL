@@ -10,6 +10,7 @@ private:
   {
     auto [r, g, b] = make_tuple(0.5f, 0.5f, 0.5f);
 
+    // #STL homework
     for (int i : rangeint(0, mBlocksHeight - 1))
       mWallBlocks.emplace_back(0, i * Block::GetSize(), r, g, b);
     for (int i : rangeint(0, mBlocksWidth))
@@ -48,11 +49,9 @@ public:
 
   vector<Block> mWallBlocks;
 
-  vector<Block> mStaticBlocks;
+  vector<Block> mFrozenBlocks;
 
   vector<Block> mMovingBlocks;
-
-  Shape         mMovingShapeType{ Shape::None };
 
   GameData(int aBlocksHeight, int aBlocksWidth)
     : mBlocksHeight(aBlocksHeight), mBlocksWidth(aBlocksWidth)
@@ -67,6 +66,7 @@ public:
 
   void Add(Shape aShape)
   {
+    // #STL homework rand() is a bad way to randomize, find a better one
     auto [r, g, b] = make_tuple(rand() % 100 / 100.0f,
       rand() % 100 / 100.0f,
       rand() % 100 / 100.0f);
@@ -123,12 +123,13 @@ public:
 
   bool HasObstacleAt(int x, int y)
   {
+    // #STL
     for (auto& block : mWallBlocks)
     {
       if (block.GetX() == x && block.GetY() == y)
         return true;
     }
-    for (auto& block : mStaticBlocks)
+    for (auto& block : mFrozenBlocks)
     {
       if (block.GetX() == x && block.GetY() == y)
         return true;
@@ -157,7 +158,7 @@ public:
 
     if (aKey == Key::Space)
     {
-      // XXX rotate shape
+      // #STL homework rotate shape
     }
     else if (aKey == Key::Left)
     {
@@ -177,13 +178,16 @@ public:
 
   void FreezeMovingBlocks()
   {
-    // XXX
-
+    // #STL 
+    
+    // min value on Y to see if game has ended
     int minY = 999;
 
+    // proceed to freeze the moving blocks
+    // moving => static
     for (auto& block : mMovingBlocks)
     {
-      mStaticBlocks.push_back(block);
+      mFrozenBlocks.push_back(block);
       if (block.GetY() < minY)
         minY = block.GetY();
     }
@@ -198,7 +202,7 @@ public:
     if (!IsAlive())
       return;
 
-    // xxx we need to destroy blocks that line up on a X coordinate
+    // #STL we need to destroy blocks that line up on a X coordinate
 
     if (!TryMove(0, 1))
       FreezeMovingBlocks();
@@ -223,12 +227,14 @@ public:
         block.Render();
       for (auto& block : mMovingBlocks)
         block.Render();
-      for (auto& block : mStaticBlocks)
+      for (auto& block : mFrozenBlocks)
         block.Render();
     }
     else
     {
       PrintGameOver();
+
+      // homework can you devise a scoring system?
     }
   }
 
