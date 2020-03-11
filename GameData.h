@@ -79,42 +79,42 @@ public:
     {
     case Shape::Line:
     {
-      mMovingBlocks.emplace_back(startX - 2 * Block::GetSize(), 0, r, g, b);
-      mMovingBlocks.emplace_back(startX - 1 * Block::GetSize(), 0, r, g, b);
-      mMovingBlocks.emplace_back(startX, 0, r, g, b);
-      mMovingBlocks.emplace_back(startX + 1 * Block::GetSize(), 0, r, g, b);
+      mMovingBlocks.push_back(Block(startX - 2 * Block::GetSize(), 0, r, g, b));
+      mMovingBlocks.push_back(Block(startX - 1 * Block::GetSize(), 0, r, g, b));
+      mMovingBlocks.push_back(Block(startX, 0, r, g, b));
+      mMovingBlocks.push_back(Block(startX + 1 * Block::GetSize(), 0, r, g, b));
       break;
     }
     case Shape::Square:
     {
-      mMovingBlocks.emplace_back(startX - 1 * Block::GetSize(), 0, r, g, b);
-      mMovingBlocks.emplace_back(startX - 1 * Block::GetSize(), 1 * Block::GetSize(), r, g, b);
-      mMovingBlocks.emplace_back(startX, 0, r, g, b);
-      mMovingBlocks.emplace_back(startX, 1 * Block::GetSize(), r, g, b);
+      mMovingBlocks.push_back(Block(startX - 1 * Block::GetSize(), 0, r, g, b));
+      mMovingBlocks.push_back(Block(startX - 1 * Block::GetSize(), 1 * Block::GetSize(), r, g, b));
+      mMovingBlocks.push_back(Block(startX, 0, r, g, b));
+      mMovingBlocks.push_back(Block(startX, 1 * Block::GetSize(), r, g, b));
       break;
     }
     case Shape::L:
     {
-      mMovingBlocks.emplace_back(startX, 0, r, g, b);
-      mMovingBlocks.emplace_back(startX, 1 * Block::GetSize(), r, g, b);
-      mMovingBlocks.emplace_back(startX + Block::GetSize(), 1 * Block::GetSize(), r, g, b);
-      mMovingBlocks.emplace_back(startX, -Block::GetSize(), r, g, b);
+      mMovingBlocks.push_back(Block(startX, 0, r, g, b));
+      mMovingBlocks.push_back(Block(startX, 1 * Block::GetSize(), r, g, b));
+      mMovingBlocks.push_back(Block(startX + Block::GetSize(), 1 * Block::GetSize(), r, g, b));
+      mMovingBlocks.push_back(Block(startX, -Block::GetSize(), r, g, b));
       break;
     }
     case Shape::J:
     {
-      mMovingBlocks.emplace_back(startX, 0, r, g, b);
-      mMovingBlocks.emplace_back(startX, 1 * Block::GetSize(), r, g, b);
-      mMovingBlocks.emplace_back(startX + Block::GetSize(), -1 * Block::GetSize(), r, g, b);
-      mMovingBlocks.emplace_back(startX, -Block::GetSize(), r, g, b);
+      mMovingBlocks.push_back(Block(startX, 0, r, g, b));
+      mMovingBlocks.push_back(Block(startX, 1 * Block::GetSize(), r, g, b));
+      mMovingBlocks.push_back(Block(startX + Block::GetSize(), -1 * Block::GetSize(), r, g, b));
+      mMovingBlocks.push_back(Block(startX, -Block::GetSize(), r, g, b));
       break;
     }
     case Shape::Z:
     {
-      mMovingBlocks.emplace_back(startX, 0, r, g, b);
-      mMovingBlocks.emplace_back(startX, -Block::GetSize(), r, g, b);
-      mMovingBlocks.emplace_back(startX + Block::GetSize(), 0, r, g, b);
-      mMovingBlocks.emplace_back(startX + Block::GetSize(), Block::GetSize(), r, g, b);
+      mMovingBlocks.push_back(Block(startX, 0, r, g, b));
+      mMovingBlocks.push_back(Block(startX, -Block::GetSize(), r, g, b));
+      mMovingBlocks.push_back(Block(startX + Block::GetSize(), 0, r, g, b));
+      mMovingBlocks.push_back(Block(startX + Block::GetSize(), Block::GetSize(), r, g, b));
 
       break;
     }
