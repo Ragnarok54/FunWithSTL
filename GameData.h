@@ -11,11 +11,11 @@ private:
     auto [r, g, b] = make_tuple(0.5f, 0.5f, 0.5f);
 
     // #STL homework
-    for (int i : rangeint(0, mBlocksHeight - 1))
+    for (int i : range::numeric(0, mBlocksHeight - 1))
       mWallBlocks.emplace_back(0, i * Block::GetSize(), r, g, b);
-    for (int i : rangeint(0, mBlocksWidth))
+    for (int i : range::numeric(0, mBlocksWidth))
       mWallBlocks.emplace_back(i * Block::GetSize(), mBlocksHeight * Block::GetSize(), r, g, b);
-    for (int i : rangeint(0, mBlocksHeight - 1))
+    for (int i : range::numeric(0, mBlocksHeight - 1))
       mWallBlocks.emplace_back(mBlocksWidth * Block::GetSize(), i * Block::GetSize(), r, g, b);
   }
 
