@@ -39,10 +39,13 @@ public:
   {
     string imagePath = string("img\\square0.bmp");
     mImg = S2D_CreateImage(imagePath.c_str());
+  }
 
-    mImg->color.r = 1.0;
-    mImg->color.g = 0.2;
-    mImg->color.b = 0.8;
+  void SetColor(int r, int g, int b)
+  {
+    mImg->color.r = r;
+    mImg->color.g = g;
+    mImg->color.b = b;
     mImg->color.a = 1.0;
   }
 
@@ -67,8 +70,8 @@ public:
 
   void UpdatePos(float aDXunits, float aDYunits)
   {
-    mY += GetSize() * aDYunits;
     mX += GetSize() * aDXunits;
+    mY += GetSize() * aDYunits;
   }
 };
 
@@ -106,10 +109,27 @@ public :
     None
   };
 
+  enum class Shape
+  {
+    Line = 0,
+    Square,
+    Z,
+    L
+  };
+
   Game(int aBlocksHeight, int aBlocksWidth)
     : mBlocksHeight(aBlocksHeight), mBlocksWidth(aBlocksWidth)
   {
     Init();
+  }
+
+  void Add(Shape aShape)
+  {
+    auto [r, g, b] = make_tuple(rand() % 100 / 100, 
+                                rand() % 100 / 100, 
+                                rand() % 100 / 100);
+
+
   }
 
   void DoKeyPressed(Key aKey)
@@ -126,7 +146,7 @@ public :
     }
     else if (aKey == Key::Right)
     {
-      dx = 1;
+      dx = 0.5;
     }
 
     for (auto & block : mBlocks)
@@ -182,6 +202,7 @@ void on_key(S2D_Event e)
   {
     case S2D_KEY_DOWN:
     {
+      TIMER_GUARD(keyDown, 250);
       // Key was pressed
       world.DoKeyPressed(pressedKey);
       break;
@@ -189,7 +210,7 @@ void on_key(S2D_Event e)
 
     case S2D_KEY_HELD:
     {
-      TIMER_GUARD(keyPressed, 250);
+      TIMER_GUARD(keyHeld, 250);
       world.DoKeyPressed(pressedKey);
       // Key is being held down
       break;
