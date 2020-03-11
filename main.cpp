@@ -2,9 +2,18 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <numeric>
 #include <simple2d.h>
 
 using namespace std;
+
+template<typename T>
+vector<T> rangeint(T from, T to)
+{
+  vector<T> ret(to - from + 1);
+  iota(begin(ret), end(ret), from);
+  return ret;
+}
 
 class Block
 {
@@ -14,11 +23,14 @@ private:
 
 public:
 
-  Block(int type)
+  Block(int aType, int aX, int aY)
+    : mType(aType), mX(aX), mY(aY)
   {
-    string imagePath = string("img\\square") + (char)('0' + type) + ".bmp";
+    string imagePath = string("img\\square") + (char)('0' + mType) + ".bmp";
     S2D_Image* img = S2D_CreateImage(imagePath.c_str());
   }
+
+  static int GetSize() { return 51; }
 
   void Render()
   {
@@ -30,28 +42,42 @@ public:
 
 class Game
 {
+private:
+  int mBlocksHeight, mBlocksWidth;
+
+  void Init()
+  {
+    for (int i : rangeint(0, mBlocksHeight))
+      mBlocks.emplace_back(0, 0, i * Block::GetSize());
+  }
+
 public :
-  
+  vector<Block> mBlocks;
+
+  Game(int aBlocksHeight, int aBlocksWidth)
+    : mBlocksHeight(aBlocksHeight), mBlocksWidth(aBlocksWidth)
+  {
+  }
 };
 
-void update() { /* update your application state */ }
+Game world{ 15, 18 };
 
-void render() {
-
-  for (int i = 0; i < 15; ++i)
-  {
-    S2D_Image* img = S2D_CreateImage(R"(img\square0.bmp)");
-    img->y = i * 51;
-    S2D_DrawImage(img);
-  }
-  /*S2D_DrawTriangle(
-    320, 50, 1, 0, 0, 1,
-    540, 430, 0, 1, 0, 1,
-    100, 430, 0, 0, 1, 1
-  ); */
+void update() 
+{ 
+  /* update your application state */ 
 }
 
-int main(int argc, char* args[]) {
+void render() 
+{
+
+  for (auto& block : world.mBlocks)
+  {
+    block.Render();
+  } 
+}
+
+int main(int argc, char* args[]) 
+{
 
   S2D_Window* window = S2D_CreateWindow(
     "FUN WITH STL", 1024, 768, update, render, S2D_RESIZABLE
