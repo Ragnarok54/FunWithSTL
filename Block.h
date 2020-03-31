@@ -40,6 +40,22 @@ public:
     mY += (int)(GetSize() * aDYunits);
   }
 
+  void SetPos(int aDXunits, int aDYunits)
+  {
+      mX =  aDXunits;
+      mY =  aDYunits;
+  }
+
+  size_t operator()(const Block& t) const
+  {
+      return t.mX;
+  }
+
+  bool operator==(const Block& t) const
+  {
+      return (this->mX == t.mX) && (this->mY == t.mY);
+  }
+
   int GetX() const { return mX;  }
 
   int GetY() const { return mY;  }
